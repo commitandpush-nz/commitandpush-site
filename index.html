@@ -481,7 +481,7 @@ footer {
     <section id="contact" aria-label="Contact">
       <div class="slabel">&gt; INPUT CONTACT_DETAILS</div>
       <div class="contact-block">
-        <span class="cl"><span class="inp-k">10 INPUT "EMAIL"    = </span><span class="inp-v"><a href="mailto:graham.wilson@gsrwilson.com">graham.wilson@gsrwilson.com</a></span></span>
+        <span class="cl"><span class="inp-k">10 INPUT "EMAIL"    = </span><span class="inp-v"><a href="mailto:graham@commitandpush.co.nz">graham@commitandpush.co.nz</a></span></span>
         <span class="cl"><span class="inp-k">20 INPUT "WEB"      = </span><span class="inp-v"><a href="https://commitandpush.co.nz">commitandpush.co.nz</a></span></span>
         <span class="cl"><span class="inp-k">30 INPUT "COMPANY"  = </span><span class="inp-v">GSRWILSON LIMITED</span></span>
         <span class="cl"><span class="inp-k">40 INPUT "LOCATION" = </span><span class="inp-v">NEW ZEALAND</span></span>
@@ -519,6 +519,15 @@ footer {
 
   var out    = document.getElementById('game-output');
   var inp    = document.getElementById('game-input');
+
+  /* ── CONSOLE EASTER EGG ── */
+  try {
+    console.log('%cAcorn Electron\n\nBASIC\n\n>\n',
+      'color:#2EFF4E;font:13px/1.45 monospace');
+    console.log('%cYou opened the console. Respect.\n' +
+      'Infrastructure & migration contracts — graham@commitandpush.co.nz',
+      'color:#1A6E2E;font:12px/1.45 monospace');
+  } catch (e) {}
 
   /* ── STATE ── */
   var S = {
@@ -847,6 +856,15 @@ footer {
       return;
     }
 
+    // ── ACORN STAR / TAPE COMMANDS (easter eggs) ──
+    if (upper.charAt(0) === '*') {
+      if (starCommand(upper.slice(1).trim()) !== 'async') done();
+      return;
+    }
+    if (upper === 'CHAIN' || upper === 'CHAIN ""' || upper === 'CHAIN""') {
+      tapeLoad('MAZE'); return;
+    }
+
     // ── WIN STATE ──
     if (S.flags.won && upper !== 'NEW GAME') {
       dim('Type NEW GAME to play again.'); done(); return;
@@ -905,6 +923,8 @@ footer {
       dim('  COMMIT AND PUSH');
       nl();
       dim('OBJECTIVE: Find the migration script and push the deployment.');
+      nl();
+      dim('This machine is an Acorn Electron. Some * commands work.');
       done(); return;
     }
 
@@ -953,7 +973,9 @@ footer {
     var fallbacks = [
       'That\'s not something I understand. Try HELP for a list of commands.',
       'Unknown command. Type HELP.',
+      'Mistake',
       'I didn\'t follow that. HELP shows valid commands.',
+      'Silly',
     ];
     line(fallbacks[S.moves % fallbacks.length]);
     done();
@@ -963,6 +985,86 @@ footer {
   function match(input, list) {
     var s = input.trim().toLowerCase();
     return list.some(function(l) { return s === l || s.indexOf(l) !== -1; });
+  }
+
+  /* ── ACORN EASTER EGGS ── */
+  var taping = false;
+
+  function starCommand(arg) {
+    var c = (arg.split(/\s+/)[0] || '').toUpperCase();
+
+    if (c === 'CAT' || c === '.') {
+      dim('COMMIT-AND-PUSH.ADV');
+      hi('Drive 0  (COMMIT)');
+      nl();
+      dim('    MIGRATE      FF1900 FF8023');
+      dim('    RUNBOOK      FF3000 FF802B');
+      dim('    REPTON       001900 003623');
+      dim('    ELITE        FF0E00 FF802F');
+      dim('    INVOICES     000000 000000   L');
+      return;
+    }
+    if (c === 'HELP') {
+      dim('Acorn Electron');
+      nl();
+      dim('OS 1.00');
+      nl();
+      dim('COMMIT-AND-PUSH 1.03');
+      return;
+    }
+    if (c === 'TAPE')  { dim('Searching'); return; }
+    if (c === 'ROM' || c === 'ROMS') { dim('BASIC  OS 1.00'); return; }
+    if (c === 'FX')    { return; }
+    if (c === 'BASIC') { dim('Already in BASIC.'); return; }
+    if (c === 'RUN' || c === 'LOAD') {
+      tapeLoad(arg.slice(c.length).trim());
+      return 'async';
+    }
+    dim('Bad command');
+  }
+
+  function tapeLoad(name) {
+    if (taping) return;
+    taping = true;
+    inp.disabled = true;
+
+    var fn = (name || '').replace(/^["']+|["']+$/g, '').toUpperCase().slice(0, 10) || 'MAZE';
+    dim('Searching');
+
+    var block = 0, MAX = 11;
+    var timer = setInterval(function () {
+      if (block === 0) {
+        nl();
+        dim('Loading');
+        dim(fn + '   08 00');
+      }
+      dim('BLOCK ' + ('0' + block.toString(16).toUpperCase()).slice(-2));
+      scrollDown();
+      block++;
+      if (block <= MAX) return;
+
+      clearInterval(timer);
+      nl();
+      hi('>LIST');
+      dim('   10 MODE 5');
+      dim('   20 PRINT CHR$(205.5+RND(1));');
+      dim('   30 GOTO 20');
+      nl();
+      hi('>RUN');
+      for (var r = 0; r < 6; r++) {
+        var s = '';
+        for (var col = 0; col < 40; col++) s += (Math.random() < 0.5 ? '/' : '\\');
+        line(s, 'go-hi');
+      }
+      nl();
+      dim('Escape at line 20');
+      nl();
+      dim('>');
+      taping = false;
+      inp.disabled = false;
+      inp.focus();
+      scrollDown();
+    }, 95);
   }
 
   /* ── INIT ── */
@@ -977,6 +1079,12 @@ footer {
     scrollDown();
 
     inp.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        inp.value = '';
+        nl(); hi('Escape'); nl(); scrollDown();
+        return;
+      }
       if (e.key === 'Enter') {
         var v = inp.value;
         inp.value = '';
