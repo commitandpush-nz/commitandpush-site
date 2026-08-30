@@ -12,6 +12,7 @@ html { scroll-behavior: smooth; }
   --p-glow: rgba(46, 255, 78, 0.32);
   --bg:     #030603;
   --border: #0E1E0E;
+  --grid:   rgba(46, 255, 78, 0.5);
 }
 
 body {
@@ -92,10 +93,34 @@ body {
 
 /* ── BOOT / HEADER ── */
 .boot {
+  position: relative;
+  overflow: hidden;
   padding-bottom: 24px;
   margin-bottom: 22px;
   border-bottom: 1px solid var(--border);
 }
+
+/* Receding vector-grid floor behind the boot header — Acorn/BBC catalogue style */
+.boot::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 240%;
+  height: 170px;
+  transform: translateX(-50%) perspective(150px) rotateX(56deg);
+  transform-origin: bottom center;
+  background-image:
+    repeating-linear-gradient(to right,  var(--grid) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px 44px);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 22%, rgba(0,0,0,0.4) 55%, transparent 82%);
+          mask-image: linear-gradient(to top, #000 0%, #000 22%, rgba(0,0,0,0.4) 55%, transparent 82%);
+  filter: drop-shadow(0 0 3px var(--p-glow));
+  pointer-events: none;
+  z-index: 0;
+}
+
+.boot > * { position: relative; z-index: 1; }
 
 .brand {
   font-size: clamp(2rem, 5.5vw, 3.4rem);
@@ -348,6 +373,7 @@ footer {
 @media (max-width: 520px) {
   .screen  { padding: 24px 22px 36px; }
   .brand   { font-size: 1.65rem; }
+  .boot::after { height: 120px; }
   .ln      { width: 2.8em; }
   .fkey    { font-size: 1.1rem; padding-right: 12px; }
   .listing { font-size: 1.05rem; }
