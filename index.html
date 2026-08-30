@@ -224,6 +224,14 @@ hr.div {
 
 .svc:hover { background: rgba(46, 255, 78, 0.04); }
 
+.svc-feature {
+  margin-top: 16px;
+  border: 1px solid var(--p-dim);
+  padding: 16px 20px 19px;
+}
+
+.svc-feature .svc-d { max-width: 66ch; }
+
 .svc-h {
   color: var(--p-hi);
   font-size: 1.12rem;
@@ -413,10 +421,10 @@ footer {
           <div class="svc-h">ENDPOINT MANAGEMENT</div>
           <div class="svc-d">Intune, WSUS, Windows &amp; macOS device management, end-user escalation support.</div>
         </div>
-        <div class="svc">
-          <div class="svc-h">HYBRID CLOUD GOVERNANCE</div>
-          <div class="svc-d">Azure Arc onboarding for on-premise and multi-cloud servers. Azure Update Manager patch compliance, Azure Policy, unified inventory across estates.</div>
-        </div>
+      </div>
+      <div class="svc svc-feature">
+        <div class="svc-h">HYBRID CLOUD GOVERNANCE</div>
+        <div class="svc-d">Azure Arc onboarding for on-premise and multi-cloud servers, bringing hybrid estates under a single control plane. Azure Update Manager for scheduled patching and compliance reporting, Azure Policy for configuration guardrails and drift detection, plus unified inventory, tagging and RBAC across on-premise, Azure and other clouds.</div>
       </div>
     </section>
 
