@@ -1,0 +1,956 @@
+<title>commitandpush.co.nz</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+<style>
+/* ── Single-theme: committed phosphor terminal ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --p:      #2EFF4E;
+  --p-dim:  #1A6E2E;
+  --p-hi:   #7FFF9A;
+  --p-glow: rgba(46, 255, 78, 0.32);
+  --bg:     #030603;
+  --border: #0E1E0E;
+}
+
+body {
+  background: #080D08;
+  font-family: 'VT323', 'Courier New', monospace;
+  color: var(--p);
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px 60px;
+}
+
+/* ── CRT MONITOR ── */
+.monitor {
+  width: 100%;
+  max-width: 840px;
+  background: var(--bg);
+  border: 2px solid #111811;
+  border-radius: 5px;
+  box-shadow:
+    0 0 0 1px #0A120A,
+    0 0 50px rgba(46, 255, 78, 0.10),
+    0 0 100px rgba(46, 255, 78, 0.05),
+    inset 0 0 140px rgba(0, 0, 0, 0.55);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scanlines */
+.monitor::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(0, 0, 0, 0.16) 2px,
+    rgba(0, 0, 0, 0.16) 3px
+  );
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Vignette */
+.monitor::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.45) 100%);
+  pointer-events: none;
+  z-index: 51;
+}
+
+.screen {
+  padding: 40px 44px 48px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── CURSOR ── */
+@keyframes blink {
+  0%, 49%  { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  background: var(--p);
+  animation: blink 0.9s step-end infinite;
+  vertical-align: bottom;
+  margin-left: 1px;
+}
+.cursor-2 { animation-delay: 0.45s; }
+
+/* ── BOOT / HEADER ── */
+.boot {
+  padding-bottom: 24px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-size: clamp(2rem, 5.5vw, 3.4rem);
+  color: var(--p-hi);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 18px var(--p-glow);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.co-name {
+  font-size: clamp(0.95rem, 2.5vw, 1.25rem);
+  color: var(--p-dim);
+  letter-spacing: 0.16em;
+  margin-top: 8px;
+}
+
+.ready {
+  margin-top: 20px;
+  font-size: 1.4rem;
+  color: var(--p-hi);
+}
+
+/* ── FUNCTION KEY STRIP ── */
+nav.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 30px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fkey {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--p);
+  text-decoration: none;
+  font-size: 1.2rem;
+  padding: 2px 18px 2px 0;
+  letter-spacing: 0.06em;
+  transition: color 0.1s, text-shadow 0.1s;
+}
+
+.fkey:hover,
+.fkey:focus-visible {
+  color: var(--p-hi);
+  text-shadow: 0 0 10px var(--p-glow);
+  outline: none;
+}
+
+.fk {
+  display: inline-block;
+  font-size: 0.72rem;
+  color: var(--p-dim);
+  border: 1px solid var(--p-dim);
+  padding: 1px 5px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+/* ── SHARED SECTION STYLES ── */
+section {
+  margin-bottom: 32px;
+  scroll-margin-top: 28px;
+}
+
+.slabel {
+  font-size: 1.1rem;
+  color: var(--p-dim);
+  letter-spacing: 0.16em;
+  margin-bottom: 16px;
+}
+
+hr.div {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 30px 0;
+}
+
+/* ── BASIC LISTING ── */
+.listing {
+  font-size: 1.15rem;
+  line-height: 1.55;
+}
+
+.l { display: block; }
+
+.ln {
+  display: inline-block;
+  width: 3.4em;
+  color: var(--p-dim);
+  text-align: right;
+  padding-right: 0.65em;
+  user-select: none;
+}
+
+.kw  { color: var(--p-hi); }
+.str { color: var(--p); }
+.cmt { color: var(--p-dim); }
+
+.run-cmd {
+  display: block;
+  color: var(--p-hi);
+  font-size: 1.25rem;
+  margin-top: 12px;
+}
+
+/* ── SERVICES GRID ── */
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.svc {
+  background: var(--bg);
+  padding: 14px 18px 17px;
+  transition: background 0.15s;
+}
+
+.svc:hover { background: rgba(46, 255, 78, 0.04); }
+
+.svc-h {
+  color: var(--p-hi);
+  font-size: 1.12rem;
+  letter-spacing: 0.07em;
+  margin-bottom: 5px;
+}
+
+.svc-d {
+  color: var(--p-dim);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+/* ── CONTACT ── */
+.contact-block {
+  font-size: 1.15rem;
+  line-height: 1.8;
+}
+
+.cl { display: block; }
+.inp-k { color: var(--p-dim); }
+.inp-v { color: var(--p); }
+.inp-v a { color: var(--p); text-decoration: none; }
+.inp-v a:hover { color: var(--p-hi); text-shadow: 0 0 8px var(--p-glow); }
+
+.prompt-line {
+  font-size: 1.35rem;
+  color: var(--p-hi);
+  margin-top: 16px;
+}
+
+/* ── GAME ── */
+.game-wrap {
+  border: 1px solid var(--border);
+  background: #010301;
+  margin-top: 14px;
+}
+
+.game-output {
+  padding: 16px 18px 12px;
+  min-height: 220px;
+  max-height: 380px;
+  overflow-y: auto;
+  font-size: 1.1rem;
+  line-height: 1.55;
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-dim) #010301;
+}
+
+.game-output p {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.go-hi  { color: var(--p-hi); }
+.go-dim { color: var(--p-dim); }
+.go-sep { color: var(--border); border-top: 1px solid var(--border); display: block; height: 1px; margin: 6px 0; }
+.go-blank { display: block; height: 0.6em; }
+
+.game-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding: 10px 18px;
+}
+
+.game-prompt-char {
+  color: var(--p-hi);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+#game-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--p-hi);
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 1.15rem;
+  flex: 1;
+  caret-color: var(--p);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  min-width: 0;
+}
+
+#game-input::placeholder {
+  color: var(--p-dim);
+  opacity: 0.5;
+  text-transform: none;
+  letter-spacing: 0.08em;
+}
+
+#game-input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── FOOTER ── */
+footer {
+  margin-top: 32px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 1rem;
+  color: var(--p-dim);
+  letter-spacing: 0.14em;
+  text-align: center;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 520px) {
+  .screen  { padding: 24px 22px 36px; }
+  .brand   { font-size: 1.65rem; }
+  .ln      { width: 2.8em; }
+  .fkey    { font-size: 1.1rem; padding-right: 12px; }
+  .listing { font-size: 1.05rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor, .cursor-2 { animation: none; opacity: 1; }
+}
+</style>
+
+<div class="monitor">
+  <div class="screen">
+
+    <!-- BOOT / HEADER -->
+    <header class="boot" id="home">
+      <div class="brand">COMMITANDPUSH.CO.NZ</div>
+      <div class="co-name">GSRWILSON LIMITED &nbsp;&mdash;&nbsp; IT INFRASTRUCTURE CONSULTING</div>
+      <div class="ready">READY.<span class="cursor"></span></div>
+    </header>
+
+    <!-- FUNCTION KEY STRIP -->
+    <nav class="strip" aria-label="Site navigation">
+      <a href="#home"     class="fkey"><span class="fk">f1</span> HOME</a>
+      <a href="#services" class="fkey"><span class="fk">f2</span> SERVICES</a>
+      <a href="#about"    class="fkey"><span class="fk">f3</span> ABOUT</a>
+      <a href="#contact"  class="fkey"><span class="fk">f4</span> CONTACT</a>
+      <a href="#game"     class="fkey"><span class="fk">f5</span> PLAY</a>
+    </nav>
+
+    <!-- INTRO -->
+    <section id="intro" aria-label="Introduction">
+      <div class="listing">
+        <span class="l"><span class="ln">10</span><span class="kw">PRINT</span> <span class="str">"SENIOR IT INFRASTRUCTURE CONSULTANT"</span></span>
+        <span class="l"><span class="ln">20</span><span class="kw">PRINT</span> <span class="str">"BASED IN NEW ZEALAND"</span></span>
+        <span class="l"><span class="ln">30</span><span class="kw">PRINT</span></span>
+        <span class="l"><span class="ln">40</span><span class="kw">PRINT</span> <span class="str">"SERVER MIGRATIONS. CLOUD INFRASTRUCTURE."</span></span>
+        <span class="l"><span class="ln">50</span><span class="kw">PRINT</span> <span class="str">"AUTOMATION. SCRIPTING. SYSTEMS ADMIN."</span></span>
+        <span class="l"><span class="ln">60</span><span class="kw">PRINT</span></span>
+        <span class="l"><span class="ln">70</span><span class="kw">PRINT</span> <span class="str">"ENTERPRISE GRADE. CONTRACTOR AGILE."</span></span>
+        <span class="run-cmd">RUN</span>
+      </div>
+    </section>
+
+    <hr class="div">
+
+    <!-- SERVICES -->
+    <section id="services" aria-label="Services">
+      <div class="slabel">&gt; LIST SERVICES</div>
+      <div class="svc-grid">
+        <div class="svc">
+          <div class="svc-h">CLOUD &amp; VM MIGRATION</div>
+          <div class="svc-d">On-premise to cloud, Nutanix, Hyper-V. Wave planning, runbooks, execution and rollback.</div>
+        </div>
+        <div class="svc">
+          <div class="svc-h">INFRASTRUCTURE ADMIN</div>
+          <div class="svc-d">Windows Server, Linux, SQL Server, Active Directory, DNS, DHCP, Group Policy.</div>
+        </div>
+        <div class="svc">
+          <div class="svc-h">AUTOMATION &amp; SCRIPTING</div>
+          <div class="svc-d">PowerShell, Bash, Ansible, OpenTofu/Terraform. Infrastructure as code and CI/CD pipelines.</div>
+        </div>
+        <div class="svc">
+          <div class="svc-h">BACKUP &amp; RECOVERY</div>
+          <div class="svc-d">Veeam backup management, disaster recovery planning, business continuity.</div>
+        </div>
+        <div class="svc">
+          <div class="svc-h">DEVOPS &amp; GIT</div>
+          <div class="svc-d">Azure DevOps, GitHub, branch strategy, PR governance, repository management.</div>
+        </div>
+        <div class="svc">
+          <div class="svc-h">ENDPOINT MANAGEMENT</div>
+          <div class="svc-d">Intune, WSUS, Windows &amp; macOS device management, end-user escalation support.</div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="div">
+
+    <!-- ABOUT -->
+    <section id="about" aria-label="About">
+      <div class="slabel">&gt; LOAD "ABOUT"</div>
+      <div class="listing">
+        <span class="l"><span class="ln">10</span><span class="kw">REM</span> <span class="cmt">GRAHAM WILSON &mdash; GSRWILSON LIMITED, NEW ZEALAND</span></span>
+        <span class="l"><span class="ln">20</span><span class="kw">PRINT</span></span>
+        <span class="l"><span class="ln">30</span><span class="kw">PRINT</span> <span class="str">"EXPERIENCED DELIVERING COMPLEX ENTERPRISE"</span></span>
+        <span class="l"><span class="ln">40</span><span class="kw">PRINT</span> <span class="str">"INFRASTRUCTURE PROJECTS: LARGE-SCALE MIGRATIONS,"</span></span>
+        <span class="l"><span class="ln">50</span><span class="kw">PRINT</span> <span class="str">"HANDS-ON TECHNICAL DELIVERY, SYSTEMS DESIGN."</span></span>
+        <span class="l"><span class="ln">60</span><span class="kw">PRINT</span> <span class="str">"AVAILABLE AS AN INDEPENDENT CONTRACTOR."</span></span>
+        <span class="l"><span class="ln">70</span><span class="kw">PRINT</span></span>
+        <span class="l"><span class="ln">80</span><span class="kw">PRINT</span> <span class="str">"WINDOWS SERVER | LINUX    | SQL SERVER | NUTANIX"</span></span>
+        <span class="l"><span class="ln">90</span><span class="kw">PRINT</span> <span class="str">"HYPER-V       | AZ DEVOPS | POWERSHELL | ANSIBLE"</span></span>
+        <span class="l"><span class="ln">100</span><span class="kw">PRINT</span> <span class="str">"OPENTOFU      | VEEAM     | INTUNE     | GIT"</span></span>
+        <span class="run-cmd">RUN</span>
+      </div>
+    </section>
+
+    <hr class="div">
+
+    <!-- CONTACT -->
+    <section id="contact" aria-label="Contact">
+      <div class="slabel">&gt; INPUT CONTACT_DETAILS</div>
+      <div class="contact-block">
+        <span class="cl"><span class="inp-k">10 INPUT "EMAIL"    = </span><span class="inp-v"><a href="mailto:graham.wilson@gsrwilson.com">graham.wilson@gsrwilson.com</a></span></span>
+        <span class="cl"><span class="inp-k">20 INPUT "WEB"      = </span><span class="inp-v"><a href="https://commitandpush.co.nz">commitandpush.co.nz</a></span></span>
+        <span class="cl"><span class="inp-k">30 INPUT "COMPANY"  = </span><span class="inp-v">GSRWILSON LIMITED</span></span>
+        <span class="cl"><span class="inp-k">40 INPUT "LOCATION" = </span><span class="inp-v">NEW ZEALAND</span></span>
+      </div>
+      <div class="prompt-line">&gt;<span class="cursor cursor-2"></span></div>
+    </section>
+
+    <hr class="div">
+
+    <!-- GAME -->
+    <section id="game" aria-label="Text adventure game">
+      <div class="slabel">&gt; RUN "COMMIT-AND-PUSH.ADV"</div>
+      <div class="game-wrap">
+        <div id="game-output" class="game-output" aria-live="polite" aria-label="Game output"></div>
+        <div class="game-input-row">
+          <span class="game-prompt-char">&gt;</span>
+          <input type="text" id="game-input"
+                 autocomplete="off" spellcheck="false"
+                 placeholder="what will you do?"
+                 aria-label="Game command input">
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      GSRWILSON LIMITED &nbsp;&mdash;&nbsp; COMMITANDPUSH.CO.NZ &nbsp;&mdash;&nbsp; &copy; 2026
+    </footer>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var out    = document.getElementById('game-output');
+  var inp    = document.getElementById('game-input');
+
+  /* ── STATE ── */
+  var S = {
+    room: 'lobby',
+    inv: [],
+    moves: 0,
+    flags: {
+      deskExamined:   false,
+      keycardTaken:   false,
+      rackUnlocked:   false,
+      usbTaken:       false,
+      coffeeTaken:    false,
+      coffeeConsumed: false,
+      terminalLoaded: false,
+      committed:      false,
+      won:            false,
+    }
+  };
+
+  /* ── ROOMS ── */
+  var ROOMS = {
+    lobby: {
+      name: 'LOBBY',
+      desc: function () {
+        return [
+          'The lobby of a Wellington data centre. Fluorescent lights flicker',
+          'overhead. A DESK sits against the wall, a cold coffee mug on top.',
+          'Exits: NORTH to server room, EAST to break room.'
+        ].join('\n');
+      },
+      exits: { north: 'serverroom', east: 'breakroom' }
+    },
+    serverroom: {
+      name: 'SERVER ROOM',
+      desc: function () {
+        var rackStatus = S.flags.rackUnlocked
+          ? 'its access panel swings open'
+          : 'a keycard reader on its panel glows red';
+        return [
+          'Racks of servers hum in cool recycled air. Status LEDs blink amber',
+          'and green. A TERMINAL glows in the corner. A SERVER RACK stands',
+          'against the far wall — ' + rackStatus + '.',
+          'Exits: SOUTH to lobby.'
+        ].join('\n');
+      },
+      exits: { south: 'lobby' }
+    },
+    breakroom: {
+      name: 'BREAK ROOM',
+      desc: function () {
+        return [
+          'A small room with a humming COFFEE MACHINE and a FRIDGE covered in',
+          'passive-aggressive Post-it notes about labelling food.',
+          'Exits: WEST to lobby.'
+        ].join('\n');
+      },
+      exits: { west: 'lobby' }
+    }
+  };
+
+  /* ── OUTPUT HELPERS ── */
+  function line(text, cls) {
+    var p = document.createElement('p');
+    if (cls) p.className = cls;
+    if (text === '') {
+      p.className = 'go-blank';
+    } else {
+      p.textContent = text;
+    }
+    out.appendChild(p);
+  }
+
+  function hi(t)  { line(t, 'go-hi'); }
+  function dim(t) { line(t, 'go-dim'); }
+  function nl()   { line(''); }
+  function sep()  { var d = document.createElement('div'); d.className = 'go-sep'; out.appendChild(d); }
+
+  function multi(text) {
+    text.split('\n').forEach(function(l) { line(l); });
+  }
+
+  function scrollDown() {
+    out.scrollTop = out.scrollHeight;
+  }
+
+  /* ── ROOM DESCRIPTION ── */
+  function describeRoom() {
+    var room = ROOMS[S.room];
+    hi('[ ' + room.name + ' ]');
+    multi(room.desc());
+
+    // Visible pickups
+    var visible = [];
+    if (S.room === 'lobby' && S.flags.deskExamined && !S.flags.keycardTaken) {
+      visible.push('KEYCARD (on the desk)');
+    }
+    if (S.room === 'serverroom' && S.flags.rackUnlocked && !S.flags.usbTaken) {
+      visible.push('USB DRIVE (in the rack)');
+    }
+    if (visible.length) {
+      dim('You can see: ' + visible.join(', ') + '.');
+    }
+  }
+
+  /* ── INVENTORY HELPERS ── */
+  function has(item) { return S.inv.indexOf(item) !== -1; }
+  function take(item) { if (!has(item)) S.inv.push(item); }
+  function invList() {
+    if (!S.inv.length) { dim('You are carrying nothing.'); return; }
+    dim('You are carrying:');
+    S.inv.forEach(function(i) { dim('  ' + i.toUpperCase()); });
+  }
+
+  /* ── DONE (echo after each command) ── */
+  function done() { nl(); scrollDown(); }
+
+  /* ── EXAMINE HANDLERS ── */
+  function examineTarget(t) {
+    // Inventory items
+    if (has('keycard') && match(t, ['keycard','card','key card'])) {
+      line('A swipe card. Reads: GSRWILSON — INFRASTRUCTURE ACCESS.'); return;
+    }
+    if (has('usb drive') && match(t, ['usb','usb drive','drive','usb stick','script'])) {
+      line('A USB drive. Labelled:');
+      dim('"MIGRATION-SCRIPT-FINAL-v3-REAL-THIS-TIME.sh"');
+      dim('You wrote that filename. You regret nothing.'); return;
+    }
+    if (has('coffee') && match(t, ['coffee','espresso','cup'])) {
+      line('A double espresso. You can feel the migration completing');
+      line('just looking at it.'); return;
+    }
+
+    // Room objects
+    if (S.room === 'lobby' && match(t, ['desk','mug','coffee mug','cup'])) {
+      if (!S.flags.deskExamined) {
+        S.flags.deskExamined = true;
+        line('You lift the coffee mug. Underneath is a KEYCARD');
+        line('marked "SERVER ACCESS". Someone is always leaving');
+        line('these around. You can TAKE the KEYCARD.');
+      } else if (S.flags.keycardTaken) {
+        line('Just a desk with an empty spot where a keycard once sat.');
+      } else {
+        line('A desk. There is a KEYCARD here. You should TAKE it.');
+      }
+      return;
+    }
+
+    if (S.room === 'serverroom' && match(t, ['terminal','screen','monitor','computer','console'])) {
+      if (!S.flags.terminalLoaded) {
+        line('A rack-mounted terminal, prompt blinking patiently.');
+        dim('You\'ll need something to load before you can push.');
+      } else {
+        hi('MIGRATION-SCRIPT-FINAL-v3-REAL-THIS-TIME.sh — LOADED');
+        dim('[OK] SSH access verified on all target hosts');
+        dim('[OK] Veeam delta backup complete');
+        dim('[OK] Runbook reviewed');
+        if (S.flags.coffeeConsumed) dim('[OK] Consultant caffeine levels: nominal');
+        line('All checks passed. Ready to COMMIT AND PUSH.');
+      }
+      return;
+    }
+
+    if (S.room === 'serverroom' && match(t, ['server rack','rack','panel','server'])) {
+      if (!S.flags.rackUnlocked) {
+        line('A server rack with a locked access panel.');
+        dim('A keycard reader glows red. You\'ll need the right card.');
+      } else if (!S.flags.usbTaken) {
+        line('The access panel is open. Inside: a USB DRIVE labelled');
+        dim('"MIGRATION-SCRIPT-FINAL-v3-REAL-THIS-TIME.sh"');
+        dim('You can TAKE the USB DRIVE.');
+      } else {
+        line('The rack panel is open. The USB drive is gone — you have it.');
+      }
+      return;
+    }
+
+    if (S.room === 'breakroom' && match(t, ['coffee machine','machine','coffee maker','espresso machine'])) {
+      if (!S.flags.coffeeTaken) {
+        line('A battered espresso machine. The button reads: DEPLOY ESPRESSO.');
+        dim('There is COFFEE available. You can TAKE it.');
+      } else {
+        line('You already took a coffee. The machine needs a moment to recover.');
+      }
+      return;
+    }
+
+    if (S.room === 'breakroom' && match(t, ['fridge','refrigerator'])) {
+      line('You open the fridge. Every item has "NOT YOURS — MARK" written on it.');
+      line('You close the fridge.');
+      return;
+    }
+
+    if (match(t, ['exits','doors','room'])) { describeRoom(); return; }
+
+    line('You don\'t see that here.');
+  }
+
+  /* ── TAKE HANDLERS ── */
+  function takeTarget(t) {
+    if (match(t, ['keycard','card','key card'])) {
+      if (S.room !== 'lobby') { line('There is no keycard here.'); return; }
+      if (!S.flags.deskExamined) { line('You\'d need to look around first.'); return; }
+      if (S.flags.keycardTaken) { line('You already have it.'); return; }
+      S.flags.keycardTaken = true;
+      take('keycard');
+      line('You take the KEYCARD. Still faintly warm from the desk.');
+      return;
+    }
+
+    if (match(t, ['usb','usb drive','drive','usb stick','script'])) {
+      if (S.room !== 'serverroom') { line('There is no USB drive here.'); return; }
+      if (!S.flags.rackUnlocked) { line('The rack panel is locked. You can\'t reach it.'); return; }
+      if (S.flags.usbTaken) { line('You already have it.'); return; }
+      S.flags.usbTaken = true;
+      take('usb drive');
+      line('You take the USB DRIVE.');
+      dim('"MIGRATION-SCRIPT-FINAL-v3-REAL-THIS-TIME.sh"');
+      line('Confidence: increasing.');
+      return;
+    }
+
+    if (match(t, ['coffee','espresso','cup'])) {
+      if (S.room !== 'breakroom') { line('There is no coffee here.'); return; }
+      if (S.flags.coffeeTaken) { line('You already have one. Enough.'); return; }
+      S.flags.coffeeTaken = true;
+      take('coffee');
+      line('You press DEPLOY ESPRESSO. The machine whirrs to life.');
+      line('You take the coffee.');
+      return;
+    }
+
+    line('You can\'t take that, or it isn\'t here.');
+  }
+
+  /* ── USE HANDLERS ── */
+  function useTarget(t) {
+    // USE KEYCARD [ON RACK]
+    if (match(t, ['keycard','card']) || match(t, ['keycard on rack','card on rack','keycard on server rack'])) {
+      if (!has('keycard')) { line('You don\'t have a keycard.'); return; }
+      if (S.room !== 'serverroom') { line('There\'s nothing to swipe a keycard on here.'); return; }
+      if (S.flags.rackUnlocked) { line('The rack panel is already open.'); return; }
+      S.flags.rackUnlocked = true;
+      line('You swipe the keycard. The reader flashes green.');
+      line('The panel swings open. Inside: a USB DRIVE labelled');
+      dim('"MIGRATION-SCRIPT-FINAL-v3-REAL-THIS-TIME.sh"');
+      dim('You can TAKE the USB DRIVE.');
+      return;
+    }
+
+    // USE USB [ON TERMINAL]
+    if (match(t, ['usb','usb drive','drive']) || match(t, ['usb on terminal','drive on terminal','usb drive on terminal'])) {
+      if (!has('usb drive')) { line('You don\'t have a USB drive.'); return; }
+      if (S.room !== 'serverroom') { line('The terminal is in the server room.'); return; }
+      if (S.flags.terminalLoaded) { line('It\'s already loaded. Step away from the terminal.'); return; }
+      S.flags.terminalLoaded = true;
+      hi('Loading MIGRATION-SCRIPT-FINAL-v3-REAL-THIS-TIME.sh...');
+      dim('Checking prerequisites...');
+      dim('[OK] SSH access verified on all target hosts');
+      dim('[OK] Veeam delta backup complete');
+      dim('[OK] Runbook reviewed');
+      if (S.flags.coffeeConsumed) dim('[OK] Consultant caffeine levels: nominal');
+      nl();
+      line('All checks passed. You are ready to COMMIT AND PUSH.');
+      return;
+    }
+
+    // USE COFFEE
+    if (match(t, ['coffee','espresso','cup'])) {
+      if (!has('coffee')) { line('You don\'t have a coffee.'); return; }
+      if (S.flags.coffeeConsumed) { line('You already drank it. You don\'t need more.'); return; }
+      S.flags.coffeeConsumed = true;
+      line('You drink the espresso. A warm certainty spreads through you.');
+      line('You\'ve done this a hundred times.');
+      line('This migration will not beat you.');
+      return;
+    }
+
+    line('That doesn\'t do anything useful right now.');
+  }
+
+  /* ── WIN ── */
+  function win() {
+    S.flags.won = true;
+    var score = Math.max(200 - S.moves * 2, 50);
+    nl();
+    hi('Pushing to origin/main...');
+    dim('Enumerating objects: 3, done.');
+    dim('Counting objects: 100% (3/3), done.');
+    dim('Writing objects: 100% (3/3), 1.24 KiB | 1.24 MiB/s, done.');
+    nl();
+    hi('[master] ✓ migration-complete');
+    nl();
+    line('The servers come online. DataTorque\'s status page goes green.');
+    line('An email arrives: "All looking good from our end. Great work."');
+    nl();
+    hi('CONGRATULATIONS.');
+    nl();
+    dim('SCORE: ' + score + '/200    MOVES: ' + S.moves);
+    nl();
+    hi('>> GSRWILSON LIMITED DOES IT AGAIN. <<');
+    nl();
+    dim('Type NEW GAME to play again.');
+    inp.placeholder = 'NEW GAME to restart';
+    scrollDown();
+  }
+
+  /* ── MAIN PARSER ── */
+  function parse(cmd) {
+    cmd = cmd.trim();
+    if (!cmd) return;
+    var upper = cmd.toUpperCase();
+    S.moves++;
+    dim('> ' + upper);
+    nl();
+
+    // ── NEW GAME ──
+    if (upper === 'NEW GAME' || upper === 'RESTART' || upper === 'RESET') {
+      S.room = 'lobby'; S.inv = []; S.moves = 0;
+      Object.keys(S.flags).forEach(function(k) { S.flags[k] = false; });
+      sep();
+      hi('NEW GAME');
+      nl();
+      describeRoom();
+      done();
+      inp.placeholder = 'what will you do?';
+      return;
+    }
+
+    // ── WIN STATE ──
+    if (S.flags.won && upper !== 'NEW GAME') {
+      dim('Type NEW GAME to play again.'); done(); return;
+    }
+
+    // ── COMMIT AND PUSH ──
+    if (upper === 'COMMIT AND PUSH' || upper === 'COMMIT PUSH') {
+      if (!S.flags.terminalLoaded) {
+        line('You haven\'t loaded a migration script yet.'); done(); return;
+      }
+      S.flags.committed = true;
+      win(); return;
+    }
+
+    // ── COMMIT ──
+    if (upper === 'COMMIT') {
+      if (!S.flags.terminalLoaded) {
+        line('Nothing staged. Load the script onto the terminal first.'); done(); return;
+      }
+      S.flags.committed = true;
+      hi('[master] migration-complete');
+      dim('1 file changed, 142 insertions(+), 0 deletions(-)');
+      line('Committed. Now type PUSH — or COMMIT AND PUSH together next time.');
+      done(); return;
+    }
+
+    // ── PUSH ──
+    if (upper === 'PUSH') {
+      if (!S.flags.terminalLoaded) {
+        line('Nothing to push. You need to load and commit first.'); done(); return;
+      }
+      if (!S.flags.committed) {
+        line('You haven\'t committed yet. Type COMMIT first.'); done(); return;
+      }
+      win(); return;
+    }
+
+    // ── LOOK / L ──
+    if (upper === 'LOOK' || upper === 'L') {
+      describeRoom(); done(); return;
+    }
+
+    // ── INVENTORY ──
+    if (upper === 'INVENTORY' || upper === 'INV' || upper === 'I') {
+      invList(); done(); return;
+    }
+
+    // ── HELP ──
+    if (upper === 'HELP' || upper === '?') {
+      dim('COMMANDS:');
+      dim('  GO [NORTH|SOUTH|EAST|WEST]');
+      dim('  EXAMINE [thing]  /  LOOK AT [thing]');
+      dim('  TAKE [thing]');
+      dim('  USE [thing]  /  USE [thing] ON [thing]');
+      dim('  INVENTORY  /  LOOK  /  COMMIT  /  PUSH');
+      dim('  COMMIT AND PUSH');
+      nl();
+      dim('OBJECTIVE: Find the migration script and push the deployment.');
+      done(); return;
+    }
+
+    // ── GO ──
+    var goM = upper.match(/^(?:GO\s+)?(NORTH|SOUTH|EAST|WEST|N|S|E|W)$/);
+    if (goM) {
+      var dirMap = { N:'north', S:'south', E:'east', W:'west',
+                     NORTH:'north', SOUTH:'south', EAST:'east', WEST:'west' };
+      var dir = dirMap[goM[1]];
+      var dest = ROOMS[S.room].exits[dir];
+      if (!dest) {
+        line('You can\'t go that way.');
+      } else {
+        S.room = dest;
+        nl();
+        describeRoom();
+      }
+      done(); return;
+    }
+
+    // ── EXAMINE ──
+    var examM = upper.match(/^(?:EXAMINE|EXAM|LOOK AT|X|READ|INSPECT)\s+(.+)$/);
+    if (examM) { examineTarget(examM[1].toLowerCase()); done(); return; }
+
+    // ── TAKE ──
+    var takeM = upper.match(/^(?:TAKE|PICK UP|GET|GRAB)\s+(.+)$/);
+    if (takeM) { takeTarget(takeM[1].toLowerCase()); done(); return; }
+
+    // ── USE ──
+    var useM = upper.match(/^USE\s+(.+)$/);
+    if (useM) { useTarget(useM[1].toLowerCase()); done(); return; }
+
+    // ── DRINK (shorthand) ──
+    var drinkM = upper.match(/^(?:DRINK|CONSUME)\s+(.+)$/);
+    if (drinkM) { useTarget(drinkM[1].toLowerCase()); done(); return; }
+
+    // ── SWIPE (shorthand) ──
+    var swipeM = upper.match(/^(?:SWIPE|UNLOCK|OPEN)\s+(.+)$/);
+    if (swipeM) { useTarget(swipeM[1].toLowerCase()); done(); return; }
+
+    // ── LOAD / INSERT (shorthand) ──
+    var loadM = upper.match(/^(?:LOAD|INSERT|PLUG IN?)\s+(.+)$/);
+    if (loadM) { useTarget(loadM[1].toLowerCase()); done(); return; }
+
+    // ── Fallback ──
+    var fallbacks = [
+      'That\'s not something I understand. Try HELP for a list of commands.',
+      'Unknown command. Type HELP.',
+      'I didn\'t follow that. HELP shows valid commands.',
+    ];
+    line(fallbacks[S.moves % fallbacks.length]);
+    done();
+  }
+
+  /* ── UTILITY ── */
+  function match(input, list) {
+    var s = input.trim().toLowerCase();
+    return list.some(function(l) { return s === l || s.indexOf(l) !== -1; });
+  }
+
+  /* ── INIT ── */
+  function init() {
+    hi('COMMIT AND PUSH — A TEXT ADVENTURE');
+    dim('An original work. (c) 2026 GSRWILSON LIMITED.');
+    dim('Type HELP for commands, or just start exploring.');
+    sep();
+    nl();
+    describeRoom();
+    nl();
+    scrollDown();
+
+    inp.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        var v = inp.value;
+        inp.value = '';
+        parse(v);
+      }
+    });
+
+    // Click game area to focus input
+    document.getElementById('game').addEventListener('click', function () {
+      inp.focus();
+    });
+  }
+
+  init();
+})();
+</script>
