@@ -42,6 +42,7 @@ html { scroll-behavior: smooth; }
   --vig:          rgba(0, 0, 0, 0.05);
   --svc-hover:    rgba(31, 122, 52, 0.06);
   --game-bg:      #F1F7F1;
+  --key-face:     #FFFFFF;
 }
 
 /* Dark theme — committed phosphor terminal, opt-in via the toggle */
@@ -63,6 +64,7 @@ html { scroll-behavior: smooth; }
   --vig:          rgba(0, 0, 0, 0.45);
   --svc-hover:    rgba(46, 255, 78, 0.04);
   --game-bg:      #010301;
+  --key-face:     #132A12;
 }
 
 body {
@@ -236,11 +238,31 @@ button.fkey {
   display: inline-block;
   font-size: 0.72rem;
   color: var(--p-dim);
+  background: linear-gradient(180deg, var(--key-face) 0%, var(--bg) 100%);
   border: 1px solid var(--p-dim);
-  padding: 1px 5px;
+  border-radius: 3px;
+  padding: 1px 6px 3px;
   line-height: 1.5;
   letter-spacing: 0.04em;
   vertical-align: middle;
+  box-shadow:
+    0 2px 0 var(--p-dim),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(0);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.fkey:hover .fk,
+.fkey:focus-visible .fk {
+  box-shadow:
+    0 3px 0 var(--p-dim),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.fkey:active .fk {
+  transform: translateY(2px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 /* ── SHARED SECTION STYLES ── */
