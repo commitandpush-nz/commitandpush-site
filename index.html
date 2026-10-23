@@ -1,3 +1,9 @@
+<script>(function () {
+  try {
+    var t = localStorage.getItem('cp-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();</script>
 <title>Graham Wilson | GSRWilson – Strategy, Leadership &amp; Technology Delivery</title>
 <meta name="description" content="Business and technology leader. Strategy, operations, infrastructure and cloud. GSRWilson Limited, New Zealand.">
 
@@ -14,22 +20,53 @@
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
 <style>
-/* ── Single-theme: committed phosphor terminal ── */
+/* ── Phosphor terminal, light & dark (light is default) ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
 :root {
-  --p:      #2EFF4E;
-  --p-dim:  #1A6E2E;
-  --p-hi:   #7FFF9A;
-  --p-glow: rgba(46, 255, 78, 0.32);
-  --bg:     #030603;
-  --border: #0E1E0E;
-  --grid:   rgba(46, 255, 78, 0.5);
+  --p:            #1F7A34;
+  --p-dim:        #5F8C6B;
+  --p-hi:         #0E4420;
+  --p-glow:       rgba(31, 122, 52, 0.18);
+  --bg:           #FBFDFB;
+  --border:       #D8E6D9;
+  --grid:         rgba(31, 122, 52, 0.28);
+  --body-bg:      #E9F2EA;
+  --mon-border:   #C9DBCB;
+  --mon-border-2: #DCE9DD;
+  --mon-glow-1:   rgba(31, 122, 52, 0.05);
+  --mon-glow-2:   rgba(31, 122, 52, 0.03);
+  --mon-shadow-in: rgba(0, 0, 0, 0.04);
+  --scan:         rgba(0, 0, 0, 0.035);
+  --vig:          rgba(0, 0, 0, 0.05);
+  --svc-hover:    rgba(31, 122, 52, 0.06);
+  --game-bg:      #F1F7F1;
+}
+
+/* Dark theme — committed phosphor terminal, opt-in via the toggle */
+:root[data-theme="dark"] {
+  --p:            #2EFF4E;
+  --p-dim:        #1A6E2E;
+  --p-hi:         #7FFF9A;
+  --p-glow:       rgba(46, 255, 78, 0.32);
+  --bg:           #030603;
+  --border:       #0E1E0E;
+  --grid:         rgba(46, 255, 78, 0.5);
+  --body-bg:      #080D08;
+  --mon-border:   #111811;
+  --mon-border-2: #0A120A;
+  --mon-glow-1:   rgba(46, 255, 78, 0.10);
+  --mon-glow-2:   rgba(46, 255, 78, 0.05);
+  --mon-shadow-in: rgba(0, 0, 0, 0.55);
+  --scan:         rgba(0, 0, 0, 0.16);
+  --vig:          rgba(0, 0, 0, 0.45);
+  --svc-hover:    rgba(46, 255, 78, 0.04);
+  --game-bg:      #010301;
 }
 
 body {
-  background: #080D08;
+  background: var(--body-bg);
   font-family: 'VT323', 'Courier New', monospace;
   color: var(--p);
   min-height: 100vh;
@@ -37,6 +74,7 @@ body {
   align-items: flex-start;
   justify-content: center;
   padding: 40px 16px 60px;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* ── CRT MONITOR ── */
@@ -44,15 +82,16 @@ body {
   width: 100%;
   max-width: 840px;
   background: var(--bg);
-  border: 2px solid #111811;
+  border: 2px solid var(--mon-border);
   border-radius: 5px;
   box-shadow:
-    0 0 0 1px #0A120A,
-    0 0 50px rgba(46, 255, 78, 0.10),
-    0 0 100px rgba(46, 255, 78, 0.05),
-    inset 0 0 140px rgba(0, 0, 0, 0.55);
+    0 0 0 1px var(--mon-border-2),
+    0 0 50px var(--mon-glow-1),
+    0 0 100px var(--mon-glow-2),
+    inset 0 0 140px var(--mon-shadow-in);
   position: relative;
   overflow: hidden;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 /* Scanlines */
@@ -64,8 +103,8 @@ body {
     to bottom,
     transparent 0,
     transparent 2px,
-    rgba(0, 0, 0, 0.16) 2px,
-    rgba(0, 0, 0, 0.16) 3px
+    var(--scan) 2px,
+    var(--scan) 3px
   );
   pointer-events: none;
   z-index: 50;
@@ -76,7 +115,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.45) 100%);
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, var(--vig) 100%);
   pointer-events: none;
   z-index: 51;
 }
@@ -186,6 +225,13 @@ nav.strip {
   outline: none;
 }
 
+button.fkey {
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
 .fk {
   display: inline-block;
   font-size: 0.72rem;
@@ -265,7 +311,7 @@ hr.div {
   transition: background 0.15s;
 }
 
-.svc:hover { background: rgba(46, 255, 78, 0.04); }
+.svc:hover { background: var(--svc-hover); }
 
 .svc-h {
   color: var(--p-hi);
@@ -301,7 +347,7 @@ hr.div {
 /* ── GAME ── */
 .game-wrap {
   border: 1px solid var(--border);
-  background: #010301;
+  background: var(--game-bg);
   margin-top: 14px;
 }
 
@@ -313,7 +359,7 @@ hr.div {
   font-size: 1.1rem;
   line-height: 1.55;
   scrollbar-width: thin;
-  scrollbar-color: var(--p-dim) #010301;
+  scrollbar-color: var(--p-dim) var(--game-bg);
 }
 
 .game-output p {
@@ -411,6 +457,7 @@ footer {
       <a href="#about"    class="fkey"><span class="fk">f3</span> ABOUT</a>
       <a href="#contact"  class="fkey"><span class="fk">f4</span> CONTACT</a>
       <a href="#game"     class="fkey"><span class="fk">f5</span> PLAY</a>
+      <button type="button" class="fkey" id="theme-toggle" aria-label="Toggle light/dark theme"><span class="fk">f6</span> <span id="theme-toggle-label">LIGHT</span></button>
     </nav>
 
     <!-- INTRO -->
@@ -1092,6 +1139,30 @@ footer {
       inp.focus();
       scrollDown();
     }, 95);
+  }
+
+  /* ── THEME TOGGLE ── */
+  var THEME_KEY = 'cp-theme';
+  var themeBtn = document.getElementById('theme-toggle');
+  var themeLabel = document.getElementById('theme-toggle-label');
+
+  function effectiveTheme() {
+    var explicit = document.documentElement.getAttribute('data-theme');
+    return (explicit === 'light' || explicit === 'dark') ? explicit : 'light';
+  }
+
+  function updateThemeLabel() {
+    themeLabel.textContent = effectiveTheme() === 'dark' ? 'LIGHT' : 'DARK';
+  }
+
+  if (themeBtn) {
+    updateThemeLabel();
+    themeBtn.addEventListener('click', function () {
+      var next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+      updateThemeLabel();
+    });
   }
 
   /* ── INIT ── */
