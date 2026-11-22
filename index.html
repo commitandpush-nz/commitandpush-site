@@ -914,7 +914,7 @@ footer {
     dim('Counting objects: 100% (3/3), done.');
     dim('Writing objects: 100% (3/3), 1.24 KiB | 1.24 MiB/s, done.');
     nl();
-    hi('[master] ✓ migration-complete');
+    hi('[main] ✓ migration-complete');
     nl();
     line('The servers come online. The status page goes green.');
     line('An email arrives: "All looking good from our end. Great work."');
@@ -981,7 +981,7 @@ footer {
         line('Nothing staged. Load the script onto the terminal first.'); done(); return;
       }
       S.flags.committed = true;
-      hi('[master] migration-complete');
+      hi('[main] migration-complete');
       dim('1 file changed, 142 insertions(+), 0 deletions(-)');
       line('Committed. Now type PUSH — or COMMIT AND PUSH together next time.');
       done(); return;
@@ -1012,7 +1012,7 @@ footer {
     if (upper === 'HELP' || upper === '?') {
       dim('COMMANDS:');
       dim('  GO [NORTH|SOUTH|EAST|WEST]');
-      dim('  EXAMINE [thing]  /  LOOK AT [thing]');
+      dim('  EXAMINE [thing]  /  LOOK [thing]');
       dim('  TAKE [thing]');
       dim('  USE [thing]  /  USE [thing] ON [thing]');
       dim('  INVENTORY  /  LOOK  /  COMMIT  /  PUSH');
@@ -1042,7 +1042,7 @@ footer {
     }
 
     // ── EXAMINE ──
-    var examM = upper.match(/^(?:EXAMINE|EXAM|LOOK AT|X|READ|INSPECT)\s+(.+)$/);
+    var examM = upper.match(/^(?:EXAMINE|EXAM|LOOK AT|LOOK|L|X|READ|INSPECT)\s+(.+)$/);
     if (examM) { examineTarget(examM[1].toLowerCase()); done(); return; }
 
     // ── TAKE ──
