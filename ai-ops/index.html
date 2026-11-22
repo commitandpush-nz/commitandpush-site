@@ -1,0 +1,592 @@
+<script>(function () {
+  try {
+    var t = localStorage.getItem('cp-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();</script>
+<title>IT That Remembers | Commit and Push – GSRWilson</title>
+<meta name="description" content="Stop paying for the same knowledge over and over. AI ops, delivered by GSRWilson Limited, New Zealand.">
+<meta name="robots" content="noindex, nofollow">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://commitandpush.co.nz/ai-ops/">
+<meta property="og:title" content="IT That Remembers | Commit and Push">
+<meta property="og:description" content="Stop paying for the same knowledge over and over.">
+<meta property="og:image" content="https://commitandpush.co.nz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="GSRWilson – Strategy, leadership and technology delivery">
+
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+<style>
+/* ── Phosphor terminal, light & dark (light is default) ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --p:            #1F7A34;
+  --p-dim:        #5F8C6B;
+  --p-hi:         #0E4420;
+  --p-glow:       rgba(31, 122, 52, 0.18);
+  --bg:           #FBFDFB;
+  --border:       #D8E6D9;
+  --grid:         rgba(31, 122, 52, 0.28);
+  --body-bg:      #E9F2EA;
+  --mon-border:   #C9DBCB;
+  --mon-border-2: #DCE9DD;
+  --mon-glow-1:   rgba(31, 122, 52, 0.05);
+  --mon-glow-2:   rgba(31, 122, 52, 0.03);
+  --mon-shadow-in: rgba(0, 0, 0, 0.04);
+  --scan:         rgba(0, 0, 0, 0.035);
+  --vig:          rgba(0, 0, 0, 0.05);
+  --svc-hover:    rgba(31, 122, 52, 0.06);
+  --game-bg:      #F1F7F1;
+  --key-face:     #FFFFFF;
+}
+
+/* Dark theme — committed phosphor terminal, opt-in via the toggle */
+:root[data-theme="dark"] {
+  --p:            #2EFF4E;
+  --p-dim:        #1A6E2E;
+  --p-hi:         #7FFF9A;
+  --p-glow:       rgba(46, 255, 78, 0.32);
+  --bg:           #030603;
+  --border:       #0E1E0E;
+  --grid:         rgba(46, 255, 78, 0.5);
+  --body-bg:      #080D08;
+  --mon-border:   #111811;
+  --mon-border-2: #0A120A;
+  --mon-glow-1:   rgba(46, 255, 78, 0.10);
+  --mon-glow-2:   rgba(46, 255, 78, 0.05);
+  --mon-shadow-in: rgba(0, 0, 0, 0.55);
+  --scan:         rgba(0, 0, 0, 0.16);
+  --vig:          rgba(0, 0, 0, 0.45);
+  --svc-hover:    rgba(46, 255, 78, 0.04);
+  --game-bg:      #010301;
+  --key-face:     #132A12;
+}
+
+body {
+  background: var(--body-bg);
+  font-family: 'VT323', 'Courier New', monospace;
+  color: var(--p);
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px 60px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* ── CRT MONITOR ── */
+.monitor {
+  width: 100%;
+  max-width: 840px;
+  background: var(--bg);
+  border: 2px solid var(--mon-border);
+  border-radius: 5px;
+  box-shadow:
+    0 0 0 1px var(--mon-border-2),
+    0 0 50px var(--mon-glow-1),
+    0 0 100px var(--mon-glow-2),
+    inset 0 0 140px var(--mon-shadow-in);
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Scanlines */
+.monitor::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    var(--scan) 2px,
+    var(--scan) 3px
+  );
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Vignette */
+.monitor::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 55%, var(--vig) 100%);
+  pointer-events: none;
+  z-index: 51;
+}
+
+.screen {
+  padding: 40px 44px 48px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── CURSOR ── */
+@keyframes blink {
+  0%, 49%  { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  background: var(--p);
+  animation: blink 0.9s step-end infinite;
+  vertical-align: bottom;
+  margin-left: 1px;
+}
+.cursor-2 { animation-delay: 0.45s; }
+
+/* ── BOOT / HEADER ── */
+.boot {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 24px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Receding vector-grid floor behind the boot header — Acorn/BBC catalogue style */
+.boot::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 240%;
+  height: 170px;
+  transform: translateX(-50%) perspective(150px) rotateX(56deg);
+  transform-origin: bottom center;
+  background-image:
+    repeating-linear-gradient(to right,  var(--grid) 0 1px, transparent 1px 44px),
+    repeating-linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px 44px);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 22%, rgba(0,0,0,0.4) 55%, transparent 82%);
+          mask-image: linear-gradient(to top, #000 0%, #000 22%, rgba(0,0,0,0.4) 55%, transparent 82%);
+  filter: drop-shadow(0 0 3px var(--p-glow));
+  pointer-events: none;
+  z-index: 0;
+}
+
+.boot > * { position: relative; z-index: 1; }
+
+.brand {
+  font-size: clamp(2rem, 5.5vw, 3.4rem);
+  color: var(--p-hi);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 18px var(--p-glow);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.co-name {
+  font-size: clamp(0.95rem, 2.5vw, 1.25rem);
+  color: var(--p-dim);
+  letter-spacing: 0.16em;
+  margin-top: 8px;
+}
+
+.ready {
+  margin-top: 20px;
+  font-size: 1.4rem;
+  color: var(--p-hi);
+}
+
+/* ── FUNCTION KEY STRIP ── */
+nav.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 30px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fkey {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--p);
+  text-decoration: none;
+  font-size: 1.2rem;
+  padding: 2px 18px 2px 0;
+  letter-spacing: 0.06em;
+  transition: color 0.1s, text-shadow 0.1s;
+}
+
+.fkey:hover,
+.fkey:focus-visible {
+  color: var(--p-hi);
+  text-shadow: 0 0 10px var(--p-glow);
+  outline: none;
+}
+
+button.fkey {
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.fk {
+  display: inline-block;
+  font-size: 0.72rem;
+  color: var(--p-dim);
+  background: linear-gradient(180deg, var(--key-face) 0%, var(--bg) 100%);
+  border: 1px solid var(--p-dim);
+  border-radius: 3px;
+  padding: 1px 6px 3px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+  box-shadow:
+    0 2px 0 var(--p-dim),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(0);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.fkey:hover .fk,
+.fkey:focus-visible .fk {
+  box-shadow:
+    0 3px 0 var(--p-dim),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.fkey:active .fk {
+  transform: translateY(2px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* ── SHARED SECTION STYLES ── */
+section {
+  margin-bottom: 32px;
+  scroll-margin-top: 28px;
+}
+
+.slabel {
+  font-size: 1.1rem;
+  color: var(--p-dim);
+  letter-spacing: 0.16em;
+  margin-bottom: 16px;
+}
+
+hr.div {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 30px 0;
+}
+
+/* ── BASIC LISTING ── */
+.listing {
+  font-size: 1.15rem;
+  line-height: 1.55;
+}
+
+.l { display: block; }
+
+.ln {
+  display: inline-block;
+  width: 3.4em;
+  color: var(--p-dim);
+  text-align: right;
+  padding-right: 0.65em;
+  user-select: none;
+}
+
+.kw  { color: var(--p-hi); }
+.str { color: var(--p); }
+.cmt { color: var(--p-dim); }
+
+.run-cmd {
+  display: block;
+  color: var(--p-hi);
+  font-size: 1.25rem;
+  margin-top: 12px;
+}
+
+/* ── SERVICES GRID ── */
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+/* Second service group heading */
+.svc-grid + .slabel {
+  margin-top: 34px;
+}
+
+.svc {
+  background: var(--bg);
+  padding: 14px 18px 17px;
+  transition: background 0.15s;
+}
+
+.svc:hover { background: var(--svc-hover); }
+
+.svc-h {
+  color: var(--p-hi);
+  font-size: 1.12rem;
+  letter-spacing: 0.07em;
+  margin-bottom: 5px;
+}
+
+.svc-d {
+  color: var(--p-dim);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+/* ── CONTACT ── */
+.contact-block {
+  font-size: 1.15rem;
+  line-height: 1.8;
+}
+
+.cl { display: block; }
+.inp-k { color: var(--p-dim); }
+.inp-v { color: var(--p); }
+.inp-v a { color: var(--p); text-decoration: none; }
+.inp-v a:hover { color: var(--p-hi); text-shadow: 0 0 8px var(--p-glow); }
+
+.prompt-line {
+  font-size: 1.35rem;
+  color: var(--p-hi);
+  margin-top: 16px;
+}
+
+/* ── GAME ── */
+.game-wrap {
+  border: 1px solid var(--border);
+  background: var(--game-bg);
+  margin-top: 14px;
+}
+
+.game-output {
+  padding: 16px 18px 12px;
+  min-height: 220px;
+  max-height: 380px;
+  overflow-y: auto;
+  font-size: 1.1rem;
+  line-height: 1.55;
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-dim) var(--game-bg);
+}
+
+.game-output p {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.go-hi  { color: var(--p-hi); }
+.go-dim { color: var(--p-dim); }
+.go-sep { color: var(--border); border-top: 1px solid var(--border); display: block; height: 1px; margin: 6px 0; }
+.go-blank { display: block; height: 0.6em; }
+
+.game-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding: 10px 18px;
+}
+
+.game-prompt-char {
+  color: var(--p-hi);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+#game-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--p-hi);
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 1.15rem;
+  flex: 1;
+  caret-color: var(--p);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  min-width: 0;
+}
+
+#game-input::placeholder {
+  color: var(--p-dim);
+  opacity: 0.5;
+  text-transform: none;
+  letter-spacing: 0.08em;
+}
+
+#game-input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── FOOTER ── */
+footer {
+  margin-top: 32px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 1rem;
+  color: var(--p-dim);
+  letter-spacing: 0.14em;
+  text-align: center;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 520px) {
+  .screen  { padding: 24px 22px 36px; }
+  .brand   { font-size: 1.65rem; }
+  .boot::after { height: 120px; }
+  .ln      { width: 2.8em; }
+  .fkey    { font-size: 1.1rem; padding-right: 12px; }
+  .listing { font-size: 1.05rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor, .cursor-2 { animation: none; opacity: 1; }
+}
+
+/* ── AI OPS PAGE ── */
+.op { font-size: 1.15rem; line-height: 1.5; }
+.op p { margin: 0 0 12px; }
+.op .lede { font-size: 1.5rem; color: var(--p-hi); line-height: 1.25; margin-bottom: 14px; text-shadow: 0 0 12px var(--p-glow); }
+.op .quote { border-left: 2px solid var(--p-dim); padding: 4px 0 4px 16px; color: var(--p-hi); margin: 14px 0 6px; }
+.op ul, .op ol { margin: 0 0 12px 1.4em; }
+.op li { margin-bottom: 6px; }
+.op li b { color: var(--p-hi); font-weight: normal; }
+.op .note { color: var(--p-dim); font-size: 1rem; }
+.subtitle { font-size: clamp(1.15rem, 3vw, 1.45rem); color: var(--p); margin-top: 10px; line-height: 1.25; text-wrap: balance; }
+.op .svc-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 520px) { .op .svc-grid { grid-template-columns: 1fr; } }
+
+</style>
+<div class="monitor">
+  <div class="screen">
+
+    <header class="boot" id="home">
+      <div class="brand">IT THAT REMEMBERS</div>
+      <div class="subtitle">Capture how your IT really works, then put AI to work on it safely.</div>
+      <div class="co-name">COMMIT AND PUSH &nbsp;&mdash;&nbsp; GSRWILSON LIMITED</div>
+      <div class="ready">READY.<span class="cursor"></span></div>
+    </header>
+
+    <nav class="strip" aria-label="Site navigation">
+      <a href="/" class="fkey"><span class="fk">f1</span> HOME</a>
+      <a href="#contact" class="fkey"><span class="fk">f4</span> CONTACT</a>
+      <button type="button" class="fkey" id="theme-toggle" aria-label="Toggle light/dark theme"><span class="fk">f6</span> <span id="theme-toggle-label">DARK</span></button>
+    </nav>
+
+    <div class="op">
+      <section aria-label="The problem">
+        <p class="lede">Stop paying for the same knowledge over and over.</p>
+        <p>Every investigation, contractor discovery phase, new starter and departure means paying again for knowledge the business already paid for. Nobody budgets for it, so it stays invisible, but it shows up as slow fixes, overrunning projects and expensive contractors.</p>
+        <p class="quote">We move your IT operations to working with AI, and we deliver the change. We capture how your IT really works as your team works, then put AI to work on it safely, so problems get fixed faster, changes go wrong less often, projects start quicker and the business isn't dependent on a few key people.</p>
+      </section>
+
+      <section aria-label="What you get">
+        <div class="slabel">&gt; WHAT YOU GET</div>
+        <div class="svc-grid">
+          <div class="svc"><div class="svc-h">SAVES MONEY</div><div class="svc-d">Less contractor discovery, shorter projects, fewer avoidable outages, forgotten servers and licences switched off.</div></div>
+          <div class="svc"><div class="svc-h">MORE PRODUCTIVE</div><div class="svc-d">Engineers fix and improve instead of hunting for information. New staff are useful in days, not weeks.</div></div>
+          <div class="svc"><div class="svc-h">LESS RISK</div><div class="svc-d">Expiring certificates and contracts caught early. Knowledge survives when people leave.</div></div>
+          <div class="svc"><div class="svc-h">LOW DISRUPTION</div><div class="svc-d">Built as part of normal work, not a separate documentation project.</div></div>
+        </div>
+      </section>
+
+      <section aria-label="The Chronicle">
+        <div class="slabel">&gt; HOW IT WORKS: THE CHRONICLE</div>
+        <p>A living record of your environment, kept in git and built as your team solves problems with Claude. Every server, service, vendor and decision gets its facts, the context behind it, a timeline of changes, and foresight: the risks an experienced engineer would watch for. Each entry carries a confidence level, from confirmed to hearsay.</p>
+        <p>Foresight entries drive reminders to Teams before certificates, licences and end-of-life dates land. A read-only copy can be published to Confluence, Notion or SharePoint for people without repo access.</p>
+      </section>
+
+      <section aria-label="What we deliver">
+        <div class="slabel">&gt; WHAT WE DELIVER</div>
+        <p>Every engagement is shaped by what you already have and where you're starting from. The work draws on five areas:</p>
+        <ul>
+          <li><b>Context:</b> the Chronicle, so AI understands the environment it's working in.</li>
+          <li><b>Infrastructure as code:</b> changes go through git and pull requests, so every AI-assisted change is reviewable, versioned and reversible.</li>
+          <li><b>Access and guardrails:</b> what Claude can read, what it can change, and what needs human approval.</li>
+          <li><b>Working AI workflows:</b> incident triage, change prep, onboarding and documentation, running day to day.</li>
+          <li><b>Your team on board:</b> people comfortable working this way, so it keeps going after we leave.</li>
+        </ul>
+      </section>
+
+      <section aria-label="Secure by design">
+        <div class="slabel">&gt; SECURE BY DESIGN</div>
+        <ul>
+          <li>Claude never holds a password. It works with the engineer's own scoped, short-lived access.</li>
+          <li>Read freely, change only through a pull request. A human approves every change before it's applied.</li>
+          <li>Secrets stay in a vault, never in prompts, repos or the Chronicle.</li>
+          <li>Everything leaves a trail: git history, pipeline runs and activity logs.</li>
+        </ul>
+      </section>
+
+      <section aria-label="How an engagement runs">
+        <div class="slabel">&gt; HOW AN ENGAGEMENT RUNS</div>
+        <p>We work with your team, not at it. Your people know your environment; we bring the experience and a proven way of working. The Chronicle is built from their knowledge, so this only works as a joint effort.</p>
+        <ol>
+          <li><b>Assess:</b> what you already have and where you're starting from. Every environment is different, so the plan is built around yours.</li>
+          <li><b>Deliver:</b> we build and roll out the change in your environment, alongside your team, starting where it pays off first.</li>
+          <li><b>Hand over:</b> your team running it, with optional ongoing support to keep the Chronicle accurate.</li>
+        </ol>
+        <p>The Chronicle belongs to you and stays with you.</p>
+      </section>
+
+      <section aria-label="Measuring it">
+        <div class="slabel">&gt; MEASURING IT</div>
+        <p>Baseline, then compare: time to resolve common incidents, discovery time at the start of projects, onboarding time, and outages that could have been foreseen.</p>
+        <p class="note">Illustration: 10 engineers each spending 3 hours a week hunting for information is about 1,500 hours a year. Halving it frees about 750.</p>
+      </section>
+
+      <section id="contact" aria-label="Contact">
+        <div class="slabel">&gt; INPUT CONTACT_DETAILS</div>
+        <div class="contact-block">
+          <span class="cl"><span class="inp-k">10 INPUT "EMAIL"   = </span><span class="inp-v"><a href="mailto:graham.wilson@gsrwilson.com">graham.wilson@gsrwilson.com</a></span></span>
+          <span class="cl"><span class="inp-k">20 INPUT "WEB"     = </span><span class="inp-v"><a href="https://commitandpush.co.nz">commitandpush.co.nz</a></span></span>
+          <span class="cl"><span class="inp-k">30 INPUT "COMPANY" = </span><span class="inp-v">GSRWILSON LIMITED</span></span>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      GSRWILSON LIMITED &nbsp;&mdash;&nbsp; COMMITANDPUSH.CO.NZ &nbsp;&mdash;&nbsp; &copy; 2026
+    </footer>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var KEY = 'cp-theme';
+  var btn = document.getElementById('theme-toggle');
+  var label = document.getElementById('theme-toggle-label');
+  function current() {
+    var t = document.documentElement.getAttribute('data-theme');
+    return (t === 'light' || t === 'dark') ? t : 'light';
+  }
+  function update() { label.textContent = current() === 'dark' ? 'LIGHT' : 'DARK'; }
+  update();
+  btn.addEventListener('click', function () {
+    var next = current() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem(KEY, next); } catch (e) {}
+    update();
+  });
+})();
+</script>
